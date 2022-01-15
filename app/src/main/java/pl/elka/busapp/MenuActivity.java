@@ -1,26 +1,50 @@
 package pl.elka.busapp;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
+import android.content.ContentUris;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.text.TextUtils;
+import android.provider.DocumentsContract;
+import android.provider.MediaStore;
+import android.security.keystore.KeyGenParameterSpec;
+import android.security.keystore.KeyProperties;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.github.barteksc.pdfviewer.util.FileUtils;
+
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.Key;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.util.Base64;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.KeyGenerator;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
 
 public class MenuActivity extends AppCompatActivity {
 
@@ -31,6 +55,7 @@ public class MenuActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu);
+
 
         if (ContextCompat.checkSelfPermission(
                 MenuActivity.this,
@@ -47,7 +72,8 @@ public class MenuActivity extends AppCompatActivity {
         showBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                Intent intent = new Intent(MenuActivity.this, ViewFilesActivity.class);
+                startActivity(intent);
             }
         });
 
@@ -114,9 +140,12 @@ public class MenuActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
         if (requestCode == CHOOSE_PDF_FROM_DEVICE && resultCode == RESULT_OK) {
             if (data != null) {
                 String path = data.getData().getPath();
+                path = path.replaceFirst("/document/raw:","");
+                System.out.println(path);
                 File file = new File(path);
                 File file2 = new File(Environment.getExternalStorageDirectory() + File.separator + "BUS/" + file.getName() + ".pdf");
                 if (file2.exists()) {
@@ -131,7 +160,7 @@ public class MenuActivity extends AppCompatActivity {
                         inChannel.transferTo(0, inChannel.size(), outChannel);
                         inStream.close();
                         outStream.close();
-                        Toast.makeText(this, file.getName(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "Saved file: " + file.getName(), Toast.LENGTH_SHORT).show();
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
                     } catch (IOException e) {
@@ -141,4 +170,5 @@ public class MenuActivity extends AppCompatActivity {
             }
         }
     }
+
 }
