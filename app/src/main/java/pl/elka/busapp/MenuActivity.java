@@ -1,61 +1,43 @@
 package pl.elka.busapp;
 
-import androidx.annotation.Nullable;
+import static pl.elka.busapp.Utils.encryptToFile;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.documentfile.provider.DocumentFile;
 
 import android.Manifest;
-import android.content.ContentUris;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.DocumentsContract;
-import android.provider.MediaStore;
-import android.security.keystore.KeyGenParameterSpec;
-import android.security.keystore.KeyProperties;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.github.barteksc.pdfviewer.util.FileUtils;
-
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.channels.FileChannel;
+import java.io.InputStream;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
-import java.security.Key;
 import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.util.Base64;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.KeyGenerator;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKey;
 
 public class MenuActivity extends AppCompatActivity {
 
     private final int CHOOSE_PDF_FROM_DEVICE = 1001;
     private static final int PERMISSION_REQUEST_CODE = 7;
+    //Coś z tym zrobic!
+    String my_key = "1234567890123456";
+    String my_spec_key = "0987654321876543";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu);
-
 
         if (ContextCompat.checkSelfPermission(
                 MenuActivity.this,
@@ -143,32 +125,29 @@ public class MenuActivity extends AppCompatActivity {
 
         if (requestCode == CHOOSE_PDF_FROM_DEVICE && resultCode == RESULT_OK) {
             if (data != null) {
-                String path = data.getData().getPath();
-                path = path.replaceFirst("/document/raw:","");
-                System.out.println(path);
-                File file = new File(path);
-                File file2 = new File(Environment.getExternalStorageDirectory() + File.separator + "BUS/" + file.getName() + ".pdf");
-                if (file2.exists()) {
-                    Toast.makeText(this, "File already exist!", Toast.LENGTH_SHORT).show();
-                } else {
-                    FileInputStream inStream = null;
+                DocumentFile documentFile = DocumentFile.fromSingleUri(this, data.getData());
+                String fileName = documentFile.getName();
+                File outFile = new File(Environment.getExternalStorageDirectory() + File.separator + "BUS/" + fileName);
+                if (!outFile.exists()) {
                     try {
-                        inStream = new FileInputStream(path);
-                        FileOutputStream outStream = new FileOutputStream(Environment.getExternalStorageDirectory() + File.separator + "BUS/" + file.getName() + ".pdf");
-                        FileChannel inChannel = inStream.getChannel();
-                        FileChannel outChannel = outStream.getChannel();
-                        inChannel.transferTo(0, inChannel.size(), outChannel);
-                        inStream.close();
-                        outStream.close();
-                        Toast.makeText(this, "Saved file: " + file.getName(), Toast.LENGTH_SHORT).show();
+                        InputStream inputStream = getContentResolver().openInputStream(data.getData());
+                        encryptToFile(my_key, my_spec_key, inputStream, new FileOutputStream(outFile));
+                        Toast.makeText(this, "Encrypted file: " + fileName, Toast.LENGTH_SHORT).show();
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
                     } catch (IOException e) {
                         e.printStackTrace();
+                    } catch (InvalidKeyException e) {
+                        e.printStackTrace();
+                    } catch (NoSuchAlgorithmException e) {
+                        e.printStackTrace();
+                    } catch (InvalidAlgorithmParameterException e) {
+                        e.printStackTrace();
                     }
+                }else {
+                    Toast.makeText(this, "The file: " + fileName+" was previously encrypted and exist!", Toast.LENGTH_SHORT).show();
                 }
             }
         }
     }
-
 }
