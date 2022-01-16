@@ -30,14 +30,12 @@ public class MenuActivity extends AppCompatActivity {
 
     private final int CHOOSE_PDF_FROM_DEVICE = 1001;
     private static final int PERMISSION_REQUEST_CODE = 7;
-    //Coś z tym zrobic!
-    String my_key = "1234567890123456";
-    String my_spec_key = "0987654321876543";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu);
+        getSupportActionBar().hide();
 
         if (ContextCompat.checkSelfPermission(
                 MenuActivity.this,
@@ -92,7 +90,7 @@ public class MenuActivity extends AppCompatActivity {
 
                 createDirectory();
             } else {
-                Toast.makeText(MenuActivity.this, "Permission Denied", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MenuActivity.this, "Odmowa nadania uprawnień!", Toast.LENGTH_SHORT).show();
             }
 
         }
@@ -103,11 +101,9 @@ public class MenuActivity extends AppCompatActivity {
     private void createDirectory() {
 
         File directory = new File(Environment.getExternalStorageDirectory() + File.separator + "BUS/");
-        if (directory.exists()) {
-            Toast.makeText(MenuActivity.this, "Directory is already exits!", Toast.LENGTH_SHORT).show();
-        } else {
+        if (!directory.exists()) {
             directory.mkdir();
-            Toast.makeText(MenuActivity.this, "Directory created!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(MenuActivity.this, "Swtorzono katalog BUS", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -131,8 +127,8 @@ public class MenuActivity extends AppCompatActivity {
                 if (!outFile.exists()) {
                     try {
                         InputStream inputStream = getContentResolver().openInputStream(data.getData());
-                        encryptToFile(my_key, my_spec_key, inputStream, new FileOutputStream(outFile));
-                        Toast.makeText(this, "Encrypted file: " + fileName, Toast.LENGTH_SHORT).show();
+                        encryptToFile(inputStream, new FileOutputStream(outFile));
+                        Toast.makeText(this, "Zaszyfrowano plik: " + fileName, Toast.LENGTH_SHORT).show();
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
                     } catch (IOException e) {
@@ -144,8 +140,8 @@ public class MenuActivity extends AppCompatActivity {
                     } catch (InvalidAlgorithmParameterException e) {
                         e.printStackTrace();
                     }
-                }else {
-                    Toast.makeText(this, "The file: " + fileName+" was previously encrypted and exist!", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, "Plik: " + fileName + " istnieje i jest już zaszyfrowany!", Toast.LENGTH_SHORT).show();
                 }
             }
         }

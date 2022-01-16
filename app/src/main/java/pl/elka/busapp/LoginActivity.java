@@ -12,22 +12,22 @@ import android.widget.Toast;
 
 import java.util.concurrent.Executor;
 
-public class MainActivity extends AppCompatActivity {
+public class LoginActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
+        setContentView(R.layout.activity_login);
+        getSupportActionBar().hide();
         Button btn = findViewById(R.id.loginBtn);
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 BiometricPrompt.PromptInfo promptInfo = new BiometricPrompt.PromptInfo.Builder()
-                        .setTitle("Pleas verify")
-                        .setDescription("Test description")
-                        .setTitle("sub title")
-                        .setNegativeButtonText("Cancel")
+                        .setTitle("Autoryzacja")
+                        .setDescription("Prosze przyłożyć palec do czujnika")
+                        .setTitle("Autoryzacja")
+                        .setNegativeButtonText("Anuluj")
                         .build();
                 getPrompt().authenticate(promptInfo);
             }
@@ -46,8 +46,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onAuthenticationSucceeded(BiometricPrompt.AuthenticationResult result) {
                 super.onAuthenticationSucceeded(result);
-                notifyUser("Succeed!");
-                Intent intent = new Intent(MainActivity.this, MenuActivity.class);
+                notifyUser("Zalogowano pomyślnie!");
+                Intent intent = new Intent(LoginActivity.this, MenuActivity.class);
                 startActivity(intent);
                 finish();
             }
@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onAuthenticationFailed() {
                 super.onAuthenticationFailed();
-                notifyUser("Failed!");
+                notifyUser("Błąd logowania!");
             }
         };
 

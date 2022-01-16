@@ -25,6 +25,8 @@ public class ViewFilesActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_files);
+        getSupportActionBar().hide();
+
         container = findViewById(R.id.filesContainer);
         listAddedFiles();
         paintListOfFiles();

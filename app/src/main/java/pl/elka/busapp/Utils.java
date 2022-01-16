@@ -17,25 +17,26 @@ import javax.crypto.spec.SecretKeySpec;
 class Utils {
 
     private final static int READ_WRITE_BLOCK_BUFFER = 1024;
-    //Coś z tym zrobic!!!!!
-    private final static String ENCRYPTOR = "AES/CBC/PKCS5Padding";
-    private final static String SECRET_KEY = "DUPA";
+    private final static String ENCRYPTOR = "AES/CBC/PKCS7Padding";
+    private final static String SECRET_KEY = "Super_Trudne_Haslo123";
+    private static String MY_KEY = "1234567890123456";
+    private static String  MY_SPEC_KEY = "0987654321876543";
 
-    public static void encryptToFile(String keyStr, String specStr, InputStream in, OutputStream out)
+    public static void encryptToFile(InputStream in, OutputStream out)
             throws NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, IOException {
-        cryptToFile(keyStr, specStr, in, out, Cipher.ENCRYPT_MODE);
+        cryptToFile(in, out, Cipher.ENCRYPT_MODE);
     }
 
-    public static void decryptToFile(String keyStr, String specStr, InputStream in, OutputStream out)
+    public static void decryptToFile(InputStream in, OutputStream out)
             throws NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, IOException {
-        cryptToFile(keyStr, specStr, in, out, Cipher.DECRYPT_MODE);
+        cryptToFile( in, out, Cipher.DECRYPT_MODE);
     }
 
-    private static void cryptToFile(String keyStr, String specStr, InputStream in, OutputStream out, int cipherMode)
+    private static void cryptToFile(InputStream in, OutputStream out, int cipherMode)
             throws NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, IOException {
         try {
-            IvParameterSpec iv = new IvParameterSpec(specStr.getBytes(StandardCharsets.UTF_8));
-            SecretKeySpec keySpec = new SecretKeySpec(keyStr.getBytes(StandardCharsets.UTF_8), SECRET_KEY);
+            IvParameterSpec iv = new IvParameterSpec(MY_SPEC_KEY.getBytes(StandardCharsets.UTF_8));
+            SecretKeySpec keySpec = new SecretKeySpec(MY_KEY.getBytes(StandardCharsets.UTF_8), SECRET_KEY);
             Cipher c = Cipher.getInstance(ENCRYPTOR);
             c.init(cipherMode, keySpec, iv);
             out = new CipherOutputStream(out, c);
@@ -50,4 +51,5 @@ class Utils {
             out.close();
         }
     }
+
 }
