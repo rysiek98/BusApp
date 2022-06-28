@@ -1,4 +1,4 @@
-# BusApp (API 28)
+# BusApp (Android API 28)
 
 Autorzy: Piotr Kurowski, Michał Ryszka; 2022 </br>
 
